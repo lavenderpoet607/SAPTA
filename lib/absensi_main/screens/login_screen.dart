@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:absensi/absensi_main/helpers/ui_helper.dart';
 import 'package:absensi/absensi_main/models/user_model.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
 import 'package:absensi/absensi_main/services/session_manager.dart';
+import 'package:absensi/absensi_main/widgets/custom_text_field.dart';
+import 'package:absensi/absensi_main/widgets/primary_button.dart';
 
-/// Layar masuk (login) untuk autentikasi peserta presensi.
 class LoginScreen extends StatefulWidget {
-  /// Callback yang dipicu saat proses login berhasil.
   final VoidCallback onLoginSuccess;
-
-  /// Callback untuk berpindah navigasi ke halaman pendaftaran (register).
   final VoidCallback onNavigateToRegister;
 
-  /// Membuat instance baru dari [LoginScreen].
   const LoginScreen({
     super.key,
     required this.onLoginSuccess,
@@ -39,7 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// Memvalidasi input formulir lalu mengirim permintaan login ke server via [_apiService].
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -60,11 +57,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await SessionManager.saveSession(user: user, token: token);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message']?.toString() ?? 'Login berhasil'),
-          backgroundColor: const Color(0xFF059669),
-        ),
+      UiHelper.showSnackBar(
+        context,
+        result['message']?.toString() ?? 'Login berhasil',
       );
       widget.onLoginSuccess();
     } catch (e) {
@@ -82,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// Mengekstrak dan mem-parsing data pengguna menjadi [UserModel] dari payload [result].
   UserModel _extractUser(Map<String, dynamic> result) {
     dynamic raw = result['data'];
     if (raw is Map && raw.containsKey('user') && raw['user'] is Map) {
@@ -104,7 +98,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Mengekstrak auth token (Bearer string) dari payload JSON [result].
   String? _extractToken(Map<String, dynamic> result) {
     if (result['data'] is Map && result['data']['token'] != null) {
       final t = result['data']['token'].toString().trim();
@@ -196,18 +189,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                TextFormField(
+                CustomTextField(
                   controller: _emailController,
+                  label: 'Email',
+                  hintText: 'nama@email.com',
+                  prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'nama@email.com',
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Email wajib diisi';
@@ -219,28 +206,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                CustomTextField(
                   controller: _passwordController,
+                  label: 'Password',
                   obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline_rounded),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                  prefixIcon: Icons.lock_outline_rounded,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -253,34 +234,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                SizedBox(
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E3A8A),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'MASUK',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                  ),
+                PrimaryButton(
+                  text: 'MASUK',
+                  isLoading: _isLoading,
+                  onPressed: _handleLogin,
+                  backgroundColor: const Color(0xFF1E3A8A),
                 ),
                 const SizedBox(height: 16),
                 Row(

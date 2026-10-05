@@ -6,15 +6,8 @@ import 'package:absensi/absensi_main/screens/profile_screen.dart';
 import 'package:absensi/absensi_main/screens/register_screen.dart';
 import 'package:absensi/absensi_main/services/session_manager.dart';
 
-/// Halaman pembungkus utama aplikasi Absensi PPKD.
-///
-/// Mengelola status autentikasi sesi, navigasi antar tab (Dashboard, Riwayat, Profil),
-/// serta pergantian tema terang dan gelap.
 class Absensi extends StatefulWidget {
-  /// Status tema awal (opsional).
   final bool? isDarkMode;
-
-  /// Callback notifikasi saat tema berubah.
   final ValueChanged<bool>? onThemeChanged;
 
   const Absensi({super.key, this.isDarkMode, this.onThemeChanged});
@@ -37,7 +30,6 @@ class _AbsensiState extends State<Absensi> {
     _checkInitialState();
   }
 
-  /// Memeriksa status login dan preferensi tema yang tersimpan di perangkat saat aplikasi dibuka.
   Future<void> _checkInitialState() async {
     final loggedIn = await SessionManager.isLoggedIn();
     final savedDarkMode = await SessionManager.getDarkMode();
@@ -52,7 +44,6 @@ class _AbsensiState extends State<Absensi> {
     }
   }
 
-  /// Mengubah tema aplikasi antara terang dan gelap lalu menyimpannya ke preferensi lokal.
   void _handleThemeToggle(bool value) {
     setState(() {
       _darkMode = value;
@@ -61,7 +52,6 @@ class _AbsensiState extends State<Absensi> {
     widget.onThemeChanged?.call(value);
   }
 
-  /// Menangani aksi logout dan mengembalikan tampilan ke form login.
   void _handleLogout() {
     setState(() {
       _isLoggedIn = false;

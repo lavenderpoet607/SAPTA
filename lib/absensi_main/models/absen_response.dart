@@ -1,23 +1,11 @@
 import 'package:absensi/absensi_main/models/absen_model.dart';
 
-/// Model respons API setelah melakukan aksi presensi (check-in, check-out, izin).
 class AbsenResponse {
-  /// Identifier catatan absensi.
   final int id;
-
-  /// Pesan balasan status dari server.
   final String message;
-
-  /// Status kehadiran yang tercatat ('masuk', 'pulang', atau 'izin').
   final String status;
-
-  /// Waktu jam masuk tercatat.
   final String? checkIn;
-
-  /// Waktu jam pulang tercatat.
   final String? checkOut;
-
-  /// Data objek detail absensi jika disertakan oleh server.
   final AbsenModel? absen;
 
   const AbsenResponse({
@@ -29,7 +17,6 @@ class AbsenResponse {
     required this.absen,
   });
 
-  /// Mengonversi struktur map JSON respons aksi absen menjadi objek [AbsenResponse].
   factory AbsenResponse.fromJson(Map<String, dynamic> json) {
     final dynamic rawData = json['data'] ?? json['absen'];
     if (rawData is Map) {

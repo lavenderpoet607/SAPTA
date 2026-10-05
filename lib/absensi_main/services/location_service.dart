@@ -3,18 +3,10 @@ import 'dart:async';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
-/// Model hasil pembacaan lokasi yang berisi koordinat GPS dan alamat teks.
 class LocationResult {
-  /// Nilai garis lintang (latitude) posisi saat ini.
   final double latitude;
-
-  /// Nilai garis bujur (longitude) posisi saat ini.
   final double longitude;
-
-  /// Alamat lengkap hasil reverse geocoding atau teks koordinat.
   final String address;
-
-  /// Menandakan apakah lokasi ini merupakan nilai fallback (bukan GPS asli).
   final bool isFallback;
 
   const LocationResult({
@@ -24,40 +16,29 @@ class LocationResult {
     this.isFallback = false,
   });
 
-  /// Alias singkat untuk [latitude].
   double get lat => latitude;
 
-  /// Alias singkat untuk [longitude].
   double get lng => longitude;
 }
 
-/// Layanan untuk mengelola izin GPS, pengambilan koordinat, dan reverse geocoding lokasi.
 class LocationService {
-  /// Koordinat lintang default (Kantor PPKD Jakarta Pusat).
   static const double defaultLat = -6.175392;
-
-  /// Koordinat bujur default (Kantor PPKD Jakarta Pusat).
   static const double defaultLng = 106.827153;
-
-  /// Alamat teks default jika lokasi perangkat tidak terdeteksi.
   static const String defaultAddress =
       'Kantor PPKD Jakarta Pusat, Jl. Kebon Sirih';
 
   static final Geocoding _geocoding = Geocoding();
 
-  /// Memeriksa apakah aplikasi telah memiliki izin akses lokasi dari pengguna.
   static Future<bool> hasPermission() async {
     final perm = await Geolocator.checkPermission();
     return perm == LocationPermission.always ||
         perm == LocationPermission.whileInUse;
   }
 
-  /// Memeriksa apakah sensor GPS atau layanan lokasi perangkat sedang aktif.
   static Future<bool> isLocationEnabled() async {
     return await Geolocator.isLocationServiceEnabled();
   }
 
-  /// Memastikan izin lokasi tersedia dengan meminta izin ke pengguna jika belum diberikan.
   static Future<LocationPermission> ensurePermission() async {
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -66,7 +47,6 @@ class LocationService {
     return permission;
   }
 
-  /// Mengambil koordinat GPS akurat perangkat beserta alamat lengkap secara real-time.
   static Future<LocationResult> getCurrentLocation() async {
     Position? lastKnown;
     try {
@@ -157,7 +137,6 @@ class LocationService {
     }
   }
 
-  /// Menerjemahkan koordinat lintang dan bujur menjadi nama jalan dan wilayah via reverse geocoding.
   static Future<String> _resolveAddress(double lat, double lng) async {
     try {
       final places = await _geocoding
@@ -186,7 +165,6 @@ class LocationService {
     }
   }
 
-  /// Menghasilkan objek [LocationResult] cadangan menggunakan koordinat default PPKD.
   static LocationResult fallback([String alasan = 'Lokasi default']) {
     return LocationResult(
       latitude: defaultLat,
@@ -196,12 +174,10 @@ class LocationService {
     );
   }
 
-  /// Membuka halaman pengaturan lokasi sistem perangkat Android/iOS.
   static Future<void> openLocationSettings() async {
     await Geolocator.openLocationSettings();
   }
 
-  /// Membuka pengaturan aplikasi di perangkat untuk mengaktifkan izin yang diblokir.
   static Future<void> openAppSettings() async {
     await Geolocator.openAppSettings();
   }

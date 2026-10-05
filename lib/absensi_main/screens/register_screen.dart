@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:absensi/absensi_main/helpers/ui_helper.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
+import 'package:absensi/absensi_main/widgets/custom_text_field.dart';
+import 'package:absensi/absensi_main/widgets/primary_button.dart';
 
-/// Layar pendaftaran (registrasi) untuk membuat akun peserta presensi baru.
 class RegisterScreen extends StatefulWidget {
-  /// Callback yang dipicu saat proses registrasi akun berhasil.
   final VoidCallback onRegisterSuccess;
-
-  /// Callback untuk berpindah navigasi kembali ke halaman masuk (login).
   final VoidCallback onNavigateToLogin;
 
-  /// Membuat instance baru dari [RegisterScreen].
   const RegisterScreen({
     super.key,
     required this.onRegisterSuccess,
@@ -42,7 +40,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  /// Memvalidasi formulir pendaftaran lalu mengirim permintaan registrasi peserta ke server via [_apiService].
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -61,13 +58,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              result['message']?.toString() ?? 'Registrasi berhasil',
-            ),
-            backgroundColor: const Color(0xFF059669),
-          ),
+        UiHelper.showSnackBar(
+          context,
+          result['message']?.toString() ?? 'Registrasi berhasil',
         );
         widget.onRegisterSuccess();
       }
@@ -177,18 +170,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        TextFormField(
+                        CustomTextField(
                           controller: _nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Nama Lengkap',
-                            prefixIcon: const Icon(
-                              Icons.person_outline_rounded,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                          ),
+                          label: 'Nama Lengkap',
+                          prefixIcon: Icons.person_outline_rounded,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Nama lengkap wajib diisi';
@@ -197,17 +182,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 14),
-                        TextFormField(
+                        CustomTextField(
                           controller: _emailController,
+                          label: 'Alamat Email',
+                          prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            labelText: 'Alamat Email',
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                          ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Email wajib diisi';
@@ -219,28 +198,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 14),
-                        TextFormField(
+                        CustomTextField(
                           controller: _passwordController,
+                          label: 'Password',
                           obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon: const Icon(Icons.lock_outline_rounded),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off_rounded
-                                    : Icons.visibility_rounded,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
+                          prefixIcon: Icons.lock_outline_rounded,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
                             ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -253,34 +226,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleRegister,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1E3A8A),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    'DAFTAR SEKARANG',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                          ),
+                        PrimaryButton(
+                          text: 'DAFTAR SEKARANG',
+                          isLoading: _isLoading,
+                          onPressed: _handleRegister,
+                          backgroundColor: const Color(0xFF1E3A8A),
                         ),
                       ],
                     ),

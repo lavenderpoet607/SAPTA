@@ -1,33 +1,13 @@
-/// Model data yang merepresentasikan satu rekaman presensi (absen masuk, pulang, atau izin).
 class AbsenModel {
-  /// Identifier unik data absensi.
   final int id;
-
-  /// Identifier pengguna pemilik absensi.
   final int userId;
-
-  /// Status kehadiran (misal: 'masuk', 'pulang', atau 'izin').
   final String status;
-
-  /// Waktu presensi masuk tercatat.
   final String? checkIn;
-
-  /// Waktu presensi pulang tercatat.
   final String? checkOut;
-
-  /// Garis lintang (latitude) lokasi presensi.
   final double latitude;
-
-  /// Garis bujur (longitude) lokasi presensi.
   final double longitude;
-
-  /// Alamat lengkap lokasi presensi.
   final String address;
-
-  /// Alasan yang disertakan jika status kehadiran adalah izin.
   final String? alasanIzin;
-
-  /// Waktu data absensi dibuat di database.
   final String? createdAt;
 
   const AbsenModel({
@@ -43,7 +23,6 @@ class AbsenModel {
     required this.createdAt,
   });
 
-  /// Mengonversi struktur map JSON dari API server menjadi objek [AbsenModel].
   factory AbsenModel.fromJson(Map<String, dynamic> json) {
     final checkOutRaw = json['check_out'] ?? json['checkOut'];
     final checkInRaw = json['check_in'] ?? json['checkIn'];
@@ -151,7 +130,6 @@ class AbsenModel {
     );
   }
 
-  /// Mengonversi objek [AbsenModel] menjadi Map JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -167,20 +145,16 @@ class AbsenModel {
     };
   }
 
-  /// Menandakan apakah status kehadiran ini berupa permohonan izin.
   bool get isIzin => status.toLowerCase() == 'izin';
 
-  /// Menandakan apakah pengguna sudah melakukan presensi pulang (check-out).
   bool get sudahPulang => checkOut != null && checkOut!.isNotEmpty;
 
-  /// Label teks status kehadiran untuk ditampilkan di UI ('Izin', 'Selesai', atau 'Masuk').
   String get statusLabel {
     if (isIzin) return 'Izin';
     if (sudahPulang) return 'Selesai';
     return 'Masuk';
   }
 
-  /// Format tanggal (YYYY-MM-DD) yang diekstrak dari waktu presensi.
   String get tanggalFormatted {
     final raw = createdAt ?? checkIn;
     if (raw == null || raw.isEmpty) {
@@ -193,7 +167,6 @@ class AbsenModel {
     return bebas;
   }
 
-  /// Format jam (HH:mm) yang diekstrak dari waktu presensi.
   String get jamFormatted {
     final raw = checkIn ?? createdAt;
     if (raw == null || raw.isEmpty) {

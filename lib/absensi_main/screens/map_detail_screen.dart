@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:absensi/absensi_main/widgets/detail_info_row.dart';
 
-/// Halaman untuk menampilkan peta interaktif Google Maps dengan penanda (marker) lokasi presensi.
 class MapDetailScreen extends StatefulWidget {
-  /// Titik garis lintang (latitude) dari lokasi presensi.
   final double latitude;
-
-  /// Titik garis bujur (longitude) dari lokasi presensi.
   final double longitude;
-
-  /// Judul penanda atau header pada peta.
   final String title;
-
-  /// Alamat jalan atau deskripsi lokasi presensi.
   final String address;
-
-  /// Waktu tanggal dan jam saat presensi dicatat.
   final String time;
 
-  /// Membuat instance baru dari [MapDetailScreen].
   const MapDetailScreen({
     super.key,
     required this.latitude,
@@ -60,17 +50,14 @@ class _MapDetailScreenState extends State<MapDetailScreen> {
     super.dispose();
   }
 
-  /// Memperbesar tingkat perbesaran peta (zoom in) secara animasi.
   Future<void> _zoomIn() async {
     await _mapController?.animateCamera(CameraUpdate.zoomIn());
   }
 
-  /// Memperkecil tingkat perbesaran peta (zoom out) secara animasi.
   Future<void> _zoomOut() async {
     await _mapController?.animateCamera(CameraUpdate.zoomOut());
   }
 
-  /// Mengembalikan fokus kamera peta ke titik koordinat presensi pengguna.
   Future<void> _kembaliKeLokasi() async {
     await _mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -176,22 +163,23 @@ class _MapDetailScreenState extends State<MapDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _barisInfo(
+                DetailInfoRow(
                   icon: Icons.my_location_outlined,
                   label: 'Koordinat',
                   value: coordText,
+                  labelWidth: 84,
                 ),
-                const SizedBox(height: 8),
-                _barisInfo(
+                DetailInfoRow(
                   icon: Icons.schedule_rounded,
                   label: 'Waktu',
                   value: widget.time,
+                  labelWidth: 84,
                 ),
-                const SizedBox(height: 8),
-                _barisInfo(
+                const DetailInfoRow(
                   icon: Icons.map_outlined,
                   label: 'Tipe Peta',
                   value: 'Normal',
+                  labelWidth: 84,
                 ),
               ],
             ),
@@ -201,7 +189,6 @@ class _MapDetailScreenState extends State<MapDetailScreen> {
     );
   }
 
-  /// Membangun tombol interaktif kontrol overlay pada peta dengan ikon dan pesan bantuan [tooltip].
   Widget _mapButton({
     required IconData icon,
     required String tooltip,
@@ -222,34 +209,6 @@ class _MapDetailScreenState extends State<MapDetailScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  /// Membangun baris teks informasi dengan ikon [icon], nama [label], dan isi nilai [value].
-  Widget _barisInfo({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 16, color: Colors.grey.shade600),
-        const SizedBox(width: 8),
-        SizedBox(
-          width: 84,
-          child: Text(
-            label,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
     );
   }
 }

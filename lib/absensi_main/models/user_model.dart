@@ -1,27 +1,11 @@
-/// Model data yang merepresentasikan akun profil pengguna/peserta pelatihan.
 class UserModel {
-  /// Identifier unik pengguna.
   final int id;
-
-  /// Nama lengkap pengguna.
   final String name;
-
-  /// Alamat email aktif pengguna.
   final String email;
-
-  /// Angkatan/Batch pelatihan PPKD.
   final String batch;
-
-  /// Identifier kejuruan pelatihan.
   final int trainingId;
-
-  /// Nama kejuruan pelatihan yang diikuti.
   final String trainingName;
-
-  /// Hak akses atau peran pengguna dalam sistem (misal: 'peserta' atau 'admin').
   final String role;
-
-  /// Waktu akun pengguna dibuat.
   final String createdAt;
 
   const UserModel({
@@ -35,7 +19,6 @@ class UserModel {
     required this.createdAt,
   });
 
-  /// Mengonversi struktur map JSON dari API menjadi objek [UserModel].
   factory UserModel.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> map = json;
     if (map['user'] is Map) {
@@ -77,7 +60,6 @@ class UserModel {
     );
   }
 
-  /// Mengonversi objek [UserModel] menjadi representasi Map JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -91,7 +73,6 @@ class UserModel {
     };
   }
 
-  /// Membuat salinan objek baru dengan beberapa nilai atribut yang diubah.
   UserModel copyWith({
     int? id,
     String? name,
@@ -114,7 +95,6 @@ class UserModel {
     );
   }
 
-  /// Mengembalikan inisial 1-2 huruf kapital dari nama pengguna untuk avatar.
   String get inisial {
     final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty || parts.first.isEmpty) {

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:absensi/absensi_main/helpers/date_helper.dart';
+import 'package:absensi/absensi_main/helpers/ui_helper.dart';
 import 'package:absensi/absensi_main/models/absen_model.dart';
 import 'package:absensi/absensi_main/models/user_model.dart';
 import 'package:absensi/absensi_main/screens/map_detail_screen.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
 import 'package:absensi/absensi_main/services/location_service.dart';
 import 'package:absensi/absensi_main/services/session_manager.dart';
+import 'package:absensi/absensi_main/widgets/confirmation_dialog.dart';
+import 'package:absensi/absensi_main/widgets/empty_state_widget.dart';
+import 'package:absensi/absensi_main/widgets/header_banner_card.dart';
+import 'package:absensi/absensi_main/widgets/primary_button.dart';
+import 'package:absensi/absensi_main/widgets/stat_card.dart';
 
-/// Halaman beranda utama yang menampilkan kartu sambutan, status lokasi GPS,
-/// tombol aksi presensi (Masuk, Pulang, Izin), dan ringkasan kehadiran hari ini.
 class DashboardScreen extends StatefulWidget {
-  /// Callback untuk berpindah ke tab riwayat absensi.
   final VoidCallback onOpenHistory;
 
   const DashboardScreen({super.key, required this.onOpenHistory});
@@ -40,7 +44,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadAllDashboardData();
   }
 
-  /// Memuat semua data yang dibutuhkan dashboard secara paralel (profil, lokasi, dan absensi).
   Future<void> _loadAllDashboardData() async {
     setState(() {
       _isLoadingData = true;
@@ -59,7 +62,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  /// Mengambil data identitas pengguna dari penyimpanan lokal lalu menyinkronkannya dengan server.
   Future<void> _loadUserData() async {
     final cached = await SessionManager.getUser();
     if (cached != null && mounted) {
@@ -77,7 +79,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (_) {}
   }
 
-  /// Membaca koordinat lintang-bujur dan alamat GPS perangkat secara real-time.
   Future<void> _loadLocationData() async {
     if (!mounted) return;
     setState(() {
@@ -92,7 +93,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  /// Mengambil riwayat absensi dan menghitung ringkasan kehadiran untuk hari ini.
   Future<void> _loadAbsenHistory() async {
     try {
       final history = await _apiService.getHistory();
@@ -102,9 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       int izin = 0;
       int selesai = 0;
 
-      final now = DateTime.now();
-      final todayStr =
-          '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr = DateHelper.getTodayKey();
 
       AbsenModel? foundToday;
 
@@ -134,122 +132,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (_) {}
   }
 
-  /// Menghasilkan ucapan salam berdasarkan waktu jam sistem lokal saat ini.
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour >= 4 && hour < 11) return 'Selamat Pagi';
-    if (hour >= 11 && hour < 15) return 'Selamat Siang';
-    if (hour >= 15 && hour < 18) return 'Selamat Sore';
-    return 'Selamat Malam';
+  Widget _buildLocationPreviewBox() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.place,
+                size: 16,
+                color: Color(0xFF1E3A8A),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  _currentLocation?.address ?? 'Lokasi saat ini',
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Koordinat: ${_currentLocation?.latitude.toStringAsFixed(4)}, ${_currentLocation?.longitude.toStringAsFixed(4)}',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey.shade600,
+              fontFamily: 'monospace',
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  /// Mengembalikan format teks tanggal hari ini dalam format bahasa Indonesia.
-  String _getFormattedDate() {
-    final now = DateTime.now();
-    const days = [
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu',
-      'Minggu',
-    ];
-    const months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
-    ];
-
-    final dayName = days[now.weekday - 1];
-    final monthName = months[now.month - 1];
-    return '$dayName, ${now.day} $monthName ${now.year}';
-  }
-
-  /// Menampilkan dialog konfirmasi dan memproses presensi masuk ke API.
   Future<void> _handleCheckIn() async {
     if (_currentLocation == null) {
       await _loadLocationData();
     }
     if (!mounted) return;
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Absen Masuk'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Apakah Anda yakin ingin melakukan absen masuk saat ini?',
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.place,
-                        size: 16,
-                        color: Color(0xFF1E3A8A),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          _currentLocation?.address ?? 'Lokasi saat ini',
-                          style: const TextStyle(fontSize: 12),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Koordinat: ${_currentLocation?.latitude.toStringAsFixed(4)}, ${_currentLocation?.longitude.toStringAsFixed(4)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF059669),
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Ya, Absen Masuk'),
-          ),
-        ],
-      ),
+      title: 'Konfirmasi Absen Masuk',
+      message: 'Apakah Anda yakin ingin melakukan absen masuk saat ini?',
+      confirmText: 'Ya, Absen Masuk',
+      confirmColor: const Color(0xFF059669),
+      icon: Icons.login_rounded,
+      contentWidget: _buildLocationPreviewBox(),
     );
 
     if (confirmed != true) return;
@@ -267,21 +205,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Absen masuk berhasil tercatat (ID: ${res.id})'),
-            backgroundColor: const Color(0xFF059669),
-          ),
+        UiHelper.showSnackBar(
+          context,
+          'Absen masuk berhasil tercatat (ID: ${res.id})',
+          backgroundColor: const Color(0xFF059669),
         );
         _loadAbsenHistory();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceFirst('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
+        UiHelper.showSnackBar(
+          context,
+          e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
         );
       }
     } finally {
@@ -293,81 +229,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  /// Menampilkan dialog konfirmasi dan memproses presensi pulang (check-out) ke API.
   Future<void> _handleCheckOut() async {
     if (_currentLocation == null) {
       await _loadLocationData();
     }
     if (!mounted) return;
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Absen Pulang'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Apakah Anda yakin ingin melakukan absen pulang dan mengakhiri kehadiran hari ini?',
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.place,
-                        size: 16,
-                        color: Color(0xFF1E3A8A),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          _currentLocation?.address ?? 'Lokasi saat ini',
-                          style: const TextStyle(fontSize: 12),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Koordinat: ${_currentLocation?.latitude.toStringAsFixed(4)}, ${_currentLocation?.longitude.toStringAsFixed(4)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEA580C),
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Ya, Absen Pulang'),
-          ),
-        ],
-      ),
+      title: 'Konfirmasi Absen Pulang',
+      message: 'Apakah Anda yakin ingin melakukan absen pulang dan mengakhiri kehadiran hari ini?',
+      confirmText: 'Ya, Absen Pulang',
+      confirmColor: const Color(0xFFEA580C),
+      icon: Icons.logout_rounded,
+      contentWidget: _buildLocationPreviewBox(),
     );
 
     if (confirmed != true) return;
@@ -384,21 +259,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Absen pulang berhasil tercatat (ID: ${res.id})'),
-            backgroundColor: const Color(0xFFEA580C),
-          ),
+        UiHelper.showSnackBar(
+          context,
+          'Absen pulang berhasil tercatat (ID: ${res.id})',
+          backgroundColor: const Color(0xFFEA580C),
         );
         _loadAbsenHistory();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceFirst('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
+        UiHelper.showSnackBar(
+          context,
+          e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
         );
       }
     } finally {
@@ -410,12 +283,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  /// Menampilkan dialog isian alasan dan memproses pengajuan izin tidak hadir ke API.
   Future<void> _handleIzin() async {
     final reasonController = TextEditingController();
     final reason = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Pengajuan Izin'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -430,8 +303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               controller: reasonController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText:
-                    'Contoh: Izin sakit demam / Keperluan mendesak keluarga',
+                hintText: 'Contoh: Izin sakit demam / Keperluan mendesak keluarga',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -449,6 +321,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD97706),
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () {
               if (reasonController.text.trim().isNotEmpty) {
@@ -477,21 +352,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Pengajuan izin berhasil dicatat (ID: ${res.id})'),
-            backgroundColor: const Color(0xFFD97706),
-          ),
+        UiHelper.showSnackBar(
+          context,
+          'Pengajuan izin berhasil dicatat (ID: ${res.id})',
+          backgroundColor: const Color(0xFFD97706),
         );
         _loadAbsenHistory();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceFirst('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
+        UiHelper.showSnackBar(
+          context,
+          e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
         );
       }
     } finally {
@@ -503,7 +376,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  /// Membuka tampilan peta interaktif layar penuh pada koordinat saat ini.
   void _openFullMap() {
     if (_currentLocation == null) return;
     Navigator.push(
@@ -540,80 +412,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1E3A8A).withValues(alpha: 0.25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _getGreeting(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.white70,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _currentUser?.name ?? 'Peserta PPKD',
-                          style: const TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.calendar_today_rounded,
-                              size: 13,
-                              color: Colors.white70,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              _getFormattedDate(),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      size: 32,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+            HeaderBannerCard(
+              title: DateHelper.getGreeting(),
+              userName: _currentUser?.name ?? 'Peserta PPKD',
+              subtitle: DateHelper.formatIndonesianDate(),
+              subtitleIcon: Icons.calendar_today_rounded,
+              avatarIcon: Icons.person_rounded,
+              gradientColors: const [Color(0xFF1E3A8A), Color(0xFF2563EB)],
             ),
             const SizedBox(height: 16),
             Card(
@@ -665,8 +470,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      _currentLocation?.address ??
-                          'Sedang mendeteksi alamat...',
+                      _currentLocation?.address ?? 'Sedang mendeteksi alamat...',
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark
@@ -769,99 +573,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF059669),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 3,
-                    ),
+                  child: PrimaryButton(
+                    height: 76,
+                    borderRadius: 14,
+                    isLoading: _isActionProcessing,
+                    backgroundColor: const Color(0xFF059669),
                     onPressed: _isActionProcessing ? null : _handleCheckIn,
-                    child: _isActionProcessing
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.login_rounded, size: 28),
-                              SizedBox(height: 6),
-                              Text(
-                                'ABSEN MASUK',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.login_rounded, size: 26),
+                        SizedBox(height: 4),
+                        Text(
+                          'ABSEN MASUK',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            letterSpacing: 0.5,
                           ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEA580C),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 3,
-                    ),
+                  child: PrimaryButton(
+                    height: 76,
+                    borderRadius: 14,
+                    isLoading: _isActionProcessing,
+                    backgroundColor: const Color(0xFFEA580C),
                     onPressed: _isActionProcessing ? null : _handleCheckOut,
-                    child: _isActionProcessing
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.logout_rounded, size: 28),
-                              SizedBox(height: 6),
-                              Text(
-                                'ABSEN PULANG',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.logout_rounded, size: 26),
+                        SizedBox(height: 4),
+                        Text(
+                          'ABSEN PULANG',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            letterSpacing: 0.5,
                           ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFD97706),
-                side: const BorderSide(color: Color(0xFFD97706)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: const Icon(Icons.assignment_late_outlined, size: 18),
-              label: const Text(
-                'Pengajuan Izin / Sakit Hari Ini',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+            PrimaryButton(
+              height: 46,
+              borderRadius: 12,
+              isOutlined: true,
+              backgroundColor: const Color(0xFFD97706),
+              icon: Icons.assignment_late_outlined,
+              text: 'Pengajuan Izin / Sakit Hari Ini',
               onPressed: _isActionProcessing ? null : _handleIzin,
             ),
             const SizedBox(height: 20),
@@ -873,113 +642,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF059669).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: const Color(0xFF059669).withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.check_circle_outline_rounded,
-                          color: Color(0xFF059669),
-                          size: 22,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '$_countMasuk',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF059669),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Total Masuk',
-                          style: TextStyle(fontSize: 11, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                  child: StatCard(
+                    label: 'Total Masuk',
+                    value: _countMasuk,
+                    color: const Color(0xFF059669),
+                    icon: Icons.check_circle_outline_rounded,
+                    isDark: isDark,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD97706).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: const Color(0xFFD97706).withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.time_to_leave_rounded,
-                          color: Color(0xFFD97706),
-                          size: 22,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '$_countIzin',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFD97706),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Total Izin',
-                          style: TextStyle(fontSize: 11, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                  child: StatCard(
+                    label: 'Total Izin',
+                    value: _countIzin,
+                    color: const Color(0xFFD97706),
+                    icon: Icons.time_to_leave_rounded,
+                    isDark: isDark,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2563EB).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: const Color(0xFF2563EB).withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.done_all_rounded,
-                          color: Color(0xFF2563EB),
-                          size: 22,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '$_countSelesai',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2563EB),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Selesai Pulang',
-                          style: TextStyle(fontSize: 11, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                  child: StatCard(
+                    label: 'Selesai Pulang',
+                    value: _countSelesai,
+                    color: const Color(0xFF2563EB),
+                    icon: Icons.done_all_rounded,
+                    isDark: isDark,
                   ),
                 ),
               ],
@@ -1034,17 +722,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               )
             else
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Belum ada data presensi yang tercatat untuk hari ini.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
+              EmptyStateWidget(
+                title: 'Belum Ada Presensi Hari Ini',
+                message: 'Belum ada data presensi yang tercatat untuk hari ini.',
+                icon: Icons.schedule_rounded,
+                isDark: isDark,
               ),
           ],
         ),

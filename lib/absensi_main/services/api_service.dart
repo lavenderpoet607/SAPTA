@@ -4,11 +4,9 @@ import 'package:absensi/absensi_main/models/absen_response.dart';
 import 'package:absensi/absensi_main/models/user_model.dart';
 import 'package:absensi/absensi_main/services/session_manager.dart';
 
-/// Layanan jaringan utama untuk berinteraksi dengan API RESTful Absensi PPKD.
 class ApiService {
   static final ApiService _instance = ApiService._internal();
 
-  /// Mengembalikan instance singleton tunggal dari [ApiService].
   factory ApiService() => _instance;
 
   ApiService._internal();
@@ -29,18 +27,14 @@ class ApiService {
     ),
   );
 
-  /// Klien Dio untuk konfigurasi lanjutan atau pengujian.
   Dio get dio => _dio;
 
-  /// URL basis API yang digunakan saat ini.
   String get baseUrl => _dio.options.baseUrl;
 
-  /// Membentuk header autentikasi HTTP Bearer token.
   Map<String, String> _authHeaders(String token) {
     return {'Authorization': 'Bearer $token'};
   }
 
-  /// Melakukan autentikasi masuk dengan email dan password.
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
@@ -53,7 +47,6 @@ class ApiService {
     );
   }
 
-  /// Mendaftarkan akun peserta pelatihan baru ke sistem absensi.
   Future<Map<String, dynamic>> register({
     required String name,
     required String email,
@@ -75,7 +68,6 @@ class ApiService {
     );
   }
 
-  /// Mengambil data profil lengkap dari server berdasarkan sesi yang aktif.
   Future<UserModel> getProfile() async {
     final token = await SessionManager.getToken();
     final json = await _request(
@@ -91,12 +83,10 @@ class ApiService {
     throw Exception('Data profil tidak valid');
   }
 
-  /// Memperbarui nama pengguna di profil dan menyimpannya ke sesi lokal.
   Future<UserModel> updateName({required String name}) async {
     final token = await SessionManager.getToken();
     final currentUser = await SessionManager.getUser();
 
-    // 1. Coba kirim perubahan nama ke server backend (endpoint update)
     try {
       final json = await _request(
         method: 'POST',
@@ -126,13 +116,9 @@ class ApiService {
           await SessionManager.saveUser(updated);
           return updated;
         }
-      } catch (_) {
-        // Jika server pelatihan tidak menyediakan endpoint update dinamis,
-        // lanjutkan dengan memperbarui nama pada sesi lokal.
-      }
+      } catch (_) {}
     }
 
-    // 2. Perbarui model user dan simpan ke SharedPreferences
     final updated =
         (currentUser ??
                 const UserModel(
@@ -147,7 +133,6 @@ class ApiService {
     return updated;
   }
 
-  /// Mencatat presensi masuk atau pengajuan izin dengan koordinat GPS dan alamat.
   Future<AbsenResponse> checkIn({
     required double lat,
     required double lng,
@@ -187,7 +172,6 @@ class ApiService {
     return AbsenResponse.fromJson(json);
   }
 
-  /// Menghapus catatan absensi atau izin berdasarkan ID dari database.
   Future<bool> deleteAbsen(int id) async {
     final token = await SessionManager.getToken();
     try {
@@ -209,7 +193,6 @@ class ApiService {
     }
   }
 
-  /// Mencatat absensi pulang (check-out) dengan koordinat GPS saat ini.
   Future<AbsenResponse> checkOut({
     required double lat,
     required double lng,
@@ -241,7 +224,6 @@ class ApiService {
     return AbsenResponse.fromJson(json);
   }
 
-  /// Mengirimkan permohonan izin tidak hadir beserta alasannya.
   Future<Map<String, dynamic>> ajukanIzin({required String alasan}) async {
     final token = await SessionManager.getToken();
     return _request(
@@ -253,7 +235,6 @@ class ApiService {
     );
   }
 
-  /// Melakukan logout akun di server dan mengakhiri sesi Bearer token.
   Future<Map<String, dynamic>> logout() async {
     final token = await SessionManager.getToken();
     try {
@@ -268,7 +249,6 @@ class ApiService {
     }
   }
 
-  /// Mengambil daftar riwayat absensi pengguna dari server.
   Future<List<AbsenModel>> getHistory({int limit = 100}) async {
     final token = await SessionManager.getToken();
     final json = await _request(
@@ -295,7 +275,6 @@ class ApiService {
     return <AbsenModel>[];
   }
 
-  /// Mengonversi daftar objek JSON mentah menjadi list objek [AbsenModel].
   List<AbsenModel> _mapAbsenList(List<dynamic> items) {
     final hasil = <AbsenModel>[];
     for (final item in items) {
@@ -306,7 +285,6 @@ class ApiService {
     return hasil;
   }
 
-  /// Helper internal untuk mengirim HTTP request via Dio dengan penanganan error terpusat.
   Future<Map<String, dynamic>> _request({
     required String method,
     required String path,
@@ -341,7 +319,6 @@ class ApiService {
     }
   }
 
-  /// Menerjemahkan pengecualian [DioException] menjadi pesan berbahasa Indonesia yang mudah dipahami.
   String _mapDioError(DioException dioErr, String errorPrefix) {
     final status = dioErr.response?.statusCode;
     final responseData = dioErr.response?.data;

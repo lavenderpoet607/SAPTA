@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:absensi/absensi_main/helpers/ui_helper.dart';
 import 'package:absensi/absensi_main/models/absen_model.dart';
 import 'package:absensi/absensi_main/screens/map_detail_screen.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
+import 'package:absensi/absensi_main/widgets/confirmation_dialog.dart';
+import 'package:absensi/absensi_main/widgets/detail_info_row.dart';
+import 'package:absensi/absensi_main/widgets/empty_state_widget.dart';
+import 'package:absensi/absensi_main/widgets/stat_card.dart';
 
-/// Halaman untuk menampilkan riwayat presensi pengguna beserta filter status dan aksi detail/hapus.
 class HistoryScreen extends StatefulWidget {
-  /// Membuat instance baru dari [HistoryScreen].
   const HistoryScreen({super.key});
 
   @override
@@ -33,7 +36,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _loadHistory();
   }
 
-  /// Memuat daftar riwayat absensi dari [ApiService] dan mengurutkannya dari yang paling baru.
   Future<void> _loadHistory() async {
     setState(() {
       _isLoading = true;
@@ -63,112 +65,62 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  /// Menampilkan dialog konfirmasi penghapusan data absensi [absen] dan menghapusnya dari server.
   Future<void> _konfirmasiHapus(AbsenModel absen) async {
-    final konfirmasi = await showDialog<bool>(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final contentBox = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${absen.tanggalFormatted} (${absen.statusLabel})',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Masuk: ${absen.checkIn ?? '-'} | Pulang: ${absen.checkOut ?? '-'}',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                absen.address,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Tindakan ini tidak dapat dibatalkan. Catatan presensi akan dihapus dari server.',
+          style: TextStyle(fontSize: 11, color: Colors.red),
+        ),
+      ],
+    );
+
+    final konfirmasi = await showConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.delete_forever_rounded,
-                color: Colors.red.shade700,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text(
-                'Hapus Absensi',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Apakah Anda yakin ingin menghapus data presensi berikut?',
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey.shade300
-                    : Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? const Color(0xFF1E293B)
-                    : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${absen.tanggalFormatted} (${absen.statusLabel})',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Masuk: ${absen.checkIn ?? '-'} | Pulang: ${absen.checkOut ?? '-'}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    absen.address,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Tindakan ini tidak dapat dibatalkan. Catatan presensi akan dihapus dari server.',
-              style: TextStyle(fontSize: 11, color: Colors.red),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade600,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              'Hapus',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
+      title: 'Hapus Absensi',
+      message: 'Apakah Anda yakin ingin menghapus data presensi berikut?',
+      confirmText: 'Hapus',
+      confirmColor: Colors.red.shade600,
+      icon: Icons.delete_forever_rounded,
+      contentWidget: contentBox,
+      isDestructive: true,
     );
 
     if (konfirmasi != true) return;
@@ -176,25 +128,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
     try {
       await _apiService.deleteAbsen(absen.id);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data absensi berhasil dihapus'),
-          backgroundColor: Color(0xFF059669),
-        ),
+      UiHelper.showSnackBar(
+        context,
+        'Data absensi berhasil dihapus',
+        backgroundColor: const Color(0xFF059669),
       );
       _loadHistory();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: Colors.red,
-        ),
+      UiHelper.showSnackBar(
+        context,
+        e.toString().replaceFirst('Exception: ', ''),
+        isError: true,
       );
     }
   }
 
-  /// Mengembalikan daftar riwayat absensi yang telah disaring berdasarkan [_filter].
   List<AbsenModel> get _filtered {
     if (_filter == 'semua') return _history;
     if (_filter == 'masuk') {
@@ -209,7 +158,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return _history;
   }
 
-  /// Menghitung total catatan riwayat berdasarkan kategori [status].
   int _hitung(String status) {
     if (status == 'masuk') {
       return _history.where((a) => !a.isIzin && !a.sudahPulang).length;
@@ -232,28 +180,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Row(
             children: [
               Expanded(
-                child: _kartuRingkasan(
+                child: StatCard(
                   label: 'Masuk',
-                  nilai: _hitung('masuk'),
-                  warna: const Color(0xFF059669),
+                  value: _hitung('masuk'),
+                  color: const Color(0xFF059669),
                   isDark: isDark,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _kartuRingkasan(
+                child: StatCard(
                   label: 'Izin',
-                  nilai: _hitung('izin'),
-                  warna: const Color(0xFFD97706),
+                  value: _hitung('izin'),
+                  color: const Color(0xFFD97706),
                   isDark: isDark,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _kartuRingkasan(
+                child: StatCard(
                   label: 'Selesai',
-                  nilai: _hitung('selesai'),
-                  warna: const Color(0xFF2563EB),
+                  value: _hitung('selesai'),
+                  color: const Color(0xFF2563EB),
                   isDark: isDark,
                 ),
               ),
@@ -312,20 +260,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: Center(child: CircularProgressIndicator()),
             )
           else if (_errorMessage != null)
-            _kondisiKosong(
+            EmptyStateWidget(
               icon: Icons.error_outline_rounded,
-              warna: Colors.red,
-              judul: 'Gagal memuat riwayat',
-              pesan: _errorMessage!,
-              aksi: _loadHistory,
+              iconColor: Colors.red,
+              title: 'Gagal memuat riwayat',
+              message: _errorMessage!,
+              onRetry: _loadHistory,
               isDark: isDark,
             )
           else if (_filtered.isEmpty)
-            _kondisiKosong(
+            EmptyStateWidget(
               icon: Icons.inbox_outlined,
-              warna: Colors.grey,
-              judul: 'Belum ada data',
-              pesan: 'Riwayat absensi akan muncul setelah Anda melakukan presensi.',
+              iconColor: Colors.grey,
+              title: 'Belum ada data',
+              message: 'Riwayat absensi akan muncul setelah Anda melakukan presensi.',
               isDark: isDark,
             )
           else
@@ -335,38 +283,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  /// Membangun widget kartu ringkasan status presensi (label, jumlah nilai, dan warna aksen).
-  Widget _kartuRingkasan({
-    required String label,
-    required int nilai,
-    required Color warna,
-    required bool isDark,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: warna.withValues(alpha: 0.35)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            '$nilai',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: warna,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
-        ],
-      ),
-    );
-  }
-
-  /// Membangun widget kartu tampilan item riwayat presensi [absen].
   Widget _kartuRiwayat(AbsenModel absen, bool isDark) {
     final warna = absen.isIzin
         ? const Color(0xFFD97706)
@@ -442,7 +358,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  /// Membuka bottom sheet yang menampilkan rincian presensi [absen].
   void _bukaDetail(AbsenModel absen) {
     showModalBottomSheet(
       context: context,
@@ -514,33 +429,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ],
               ),
               const SizedBox(height: 18),
-              _barisDetail(
+              DetailInfoRow(
                 icon: Icons.login_rounded,
                 label: 'Jam Masuk',
                 value: absen.checkIn ?? '-',
                 isDark: isDark,
               ),
-              _barisDetail(
+              DetailInfoRow(
                 icon: Icons.logout_rounded,
                 label: 'Jam Pulang',
                 value: absen.checkOut ?? '-',
                 isDark: isDark,
               ),
-              _barisDetail(
+              DetailInfoRow(
                 icon: Icons.my_location_outlined,
                 label: 'Koordinat',
                 value:
                     '${absen.latitude.toStringAsFixed(6)}, ${absen.longitude.toStringAsFixed(6)}',
                 isDark: isDark,
               ),
-              _barisDetail(
+              DetailInfoRow(
                 icon: Icons.location_on_outlined,
                 label: 'Alamat',
                 value: absen.address,
                 isDark: isDark,
               ),
               if (absen.alasanIzin != null)
-                _barisDetail(
+                DetailInfoRow(
                   icon: Icons.description_outlined,
                   label: 'Alasan Izin',
                   value: absen.alasanIzin!,
@@ -611,83 +526,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         );
       },
-    );
-  }
-
-  /// Membangun baris informasi berlabel dengan ikon pada dialog/modal detail.
-  Widget _barisDetail({
-    required IconData icon,
-    required String label,
-    required String value,
-    required bool isDark,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 17, color: const Color(0xFF4F46E5)),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 90,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Membangun widget tampilan pesan kosong atau error dengan opsi tombol coba lagi [aksi].
-  Widget _kondisiKosong({
-    required IconData icon,
-    required Color warna,
-    required String judul,
-    required String pesan,
-    required bool isDark,
-    Future<void> Function()? aksi,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 42, color: warna),
-          const SizedBox(height: 12),
-          Text(
-            judul,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            pesan,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-          if (aksi != null) ...[
-            const SizedBox(height: 14),
-            OutlinedButton.icon(
-              onPressed: () => aksi(),
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Coba Lagi'),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }
