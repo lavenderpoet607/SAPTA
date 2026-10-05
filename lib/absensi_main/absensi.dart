@@ -187,13 +187,6 @@ class _AbsensiState extends State<Absensi> {
 
           return Scaffold(
             appBar: AppBar(
-              leading: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset('assets/images/app_logo.png'),
-                ),
-              ),
               title: Text(
                 titles[_currentIndex],
                 style: const TextStyle(
