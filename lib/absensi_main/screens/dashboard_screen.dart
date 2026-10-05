@@ -418,7 +418,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               userName: _currentUser?.name ?? 'Peserta PPKD',
               subtitle: DateHelper.formatIndonesianDate(),
               subtitleIcon: Icons.calendar_today_rounded,
-              imageAsset: 'assets/images/app_logo.png',
+              showAnalogClock: true,
               gradientColors: const [Color(0xFF1E3A8A), Color(0xFF2563EB)],
             ),
             const SizedBox(height: 16),

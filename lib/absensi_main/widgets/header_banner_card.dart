@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'analog_clock.dart';
+
 class HeaderBannerCard extends StatelessWidget {
   final String userName;
   final String? title;
@@ -9,6 +11,7 @@ class HeaderBannerCard extends StatelessWidget {
   final String? avatarText;
   final IconData? avatarIcon;
   final String? imageAsset;
+  final bool showAnalogClock;
   final List<Color>? gradientColors;
   final VoidCallback? onEdit;
   final VoidCallback? onRefresh;
@@ -24,6 +27,7 @@ class HeaderBannerCard extends StatelessWidget {
     this.avatarText,
     this.avatarIcon,
     this.imageAsset,
+    this.showAnalogClock = false,
     this.gradientColors,
     this.onEdit,
     this.onRefresh,
@@ -47,7 +51,9 @@ class HeaderBannerCard extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: imageAsset != null
+      child: showAnalogClock
+          ? const AnalogClock(size: 48)
+          : imageAsset != null
           ? ClipRRect(
               borderRadius: BorderRadius.circular(28),
               child: Image.asset(
@@ -58,19 +64,19 @@ class HeaderBannerCard extends StatelessWidget {
               ),
             )
           : avatarText != null && avatarText!.isNotEmpty
-              ? Text(
-                  avatarText!,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                )
-              : Icon(
-                  avatarIcon ?? Icons.badge_outlined,
-                  size: 30,
-                  color: Colors.white,
-                ),
+          ? Text(
+              avatarText!,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            )
+          : Icon(
+              avatarIcon ?? Icons.badge_outlined,
+              size: 30,
+              color: Colors.white,
+            ),
     );
 
     Widget textColumn = Column(
