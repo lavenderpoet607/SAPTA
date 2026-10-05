@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:absensi/absensi_main/widgets/detail_info_row.dart';
+import 'package:absensi/absensi_main/reusable/usable.dart';
 
 class MapDetailScreen extends StatefulWidget {
   final double latitude;
@@ -74,7 +75,7 @@ class _MapDetailScreenState extends State<MapDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor: const Color(0xFF4F46E5),
+        backgroundColor: appBarBackgroundColor,
         foregroundColor: Colors.white,
         elevation: 0.5,
       ),

@@ -3,7 +3,7 @@ import 'package:absensi/absensi_main/helpers/ui_helper.dart';
 import 'package:absensi/absensi_main/models/user_model.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
 import 'package:absensi/absensi_main/services/session_manager.dart';
-import 'package:absensi/absensi_main/widgets/custom_text_field.dart';
+import 'package:absensi/absensi_main/reusable/custom_text_field.dart';
 import 'package:absensi/absensi_main/widgets/primary_button.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.badge_outlined,
+                      Icons.fact_check_outlined,
                       size: 32,
                       color: Color(0xFF1E3A8A),
                     ),
@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'ABSENSI PPKD',
+                  'SAPTA',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,

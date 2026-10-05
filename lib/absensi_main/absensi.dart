@@ -5,6 +5,7 @@ import 'package:absensi/absensi_main/screens/login_screen.dart';
 import 'package:absensi/absensi_main/screens/profile_screen.dart';
 import 'package:absensi/absensi_main/screens/register_screen.dart';
 import 'package:absensi/absensi_main/services/session_manager.dart';
+import 'package:absensi/absensi_main/reusable/usable.dart';
 
 class Absensi extends StatefulWidget {
   final bool? isDarkMode;
@@ -71,6 +72,11 @@ class _AbsensiState extends State<Absensi> {
               surface: Color(0xFF0F172A),
             ),
             scaffoldBackgroundColor: const Color(0xFF0F172A),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: appBarBackgroundColor,
+              foregroundColor: Colors.white,
+              elevation: 0.5,
+            ),
           )
         : ThemeData.light().copyWith(
             primaryColor: const Color(0xFF4F46E5),
@@ -80,6 +86,11 @@ class _AbsensiState extends State<Absensi> {
               surface: Colors.white,
             ),
             scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: appBarBackgroundColor,
+              foregroundColor: Colors.white,
+              elevation: 0.5,
+            ),
           );
 
     return Theme(
@@ -95,10 +106,8 @@ class _AbsensiState extends State<Absensi> {
           if (!_isLoggedIn) {
             return Scaffold(
               appBar: AppBar(
-                title: Text(
-                  _showRegister ? 'Daftar Akun PPKD' : 'Masuk Akun PPKD',
-                ),
-                backgroundColor: const Color(0xFF4F46E5),
+                title: Text(_showRegister ? 'Daftar Akun' : 'Masuk Akun'),
+                backgroundColor: appBarBackgroundColor,
                 foregroundColor: Colors.white,
                 elevation: 0.5,
                 actions: [
@@ -160,7 +169,7 @@ class _AbsensiState extends State<Absensi> {
             ),
           ];
 
-          final titles = ['ABSENSI PPKD', 'Riwayat Absensi', 'Profil Pengguna'];
+          final titles = ['SAPTA', 'Riwayat Absensi', 'Profil Pengguna'];
 
           return Scaffold(
             appBar: AppBar(
@@ -171,7 +180,7 @@ class _AbsensiState extends State<Absensi> {
                   fontSize: 18,
                 ),
               ),
-              backgroundColor: const Color(0xFF4F46E5),
+              backgroundColor: appBarBackgroundColor,
               foregroundColor: Colors.white,
               elevation: 0.5,
               actions: [

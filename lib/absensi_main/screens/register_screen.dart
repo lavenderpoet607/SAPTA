@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:absensi/absensi_main/helpers/ui_helper.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
-import 'package:absensi/absensi_main/widgets/custom_text_field.dart';
+import 'package:absensi/absensi_main/reusable/custom_text_field.dart';
 import 'package:absensi/absensi_main/widgets/primary_button.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -121,7 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Lengkapi data untuk mendaftar akun Absensi PPKD',
+                'Lengkapi data untuk mendaftar akun SAPTA',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,

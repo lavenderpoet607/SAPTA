@@ -5,7 +5,7 @@ import 'package:absensi/absensi_main/models/user_model.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
 import 'package:absensi/absensi_main/services/session_manager.dart';
 import 'package:absensi/absensi_main/widgets/confirmation_dialog.dart';
-import 'package:absensi/absensi_main/widgets/custom_text_field.dart';
+import 'package:absensi/absensi_main/reusable/custom_text_field.dart';
 import 'package:absensi/absensi_main/widgets/detail_info_row.dart';
 import 'package:absensi/absensi_main/widgets/header_banner_card.dart';
 import 'package:absensi/absensi_main/widgets/primary_button.dart';
@@ -333,7 +333,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 14),
           Center(
             child: Text(
-              'Absensi PPKD',
+              'SAPTA',
               style: TextStyle(
                 fontSize: 11,
                 color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,

@@ -144,16 +144,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.place,
-                size: 16,
-                color: Color(0xFF1E3A8A),
-              ),
+              const Icon(Icons.place, size: 16, color: Color(0xFF1E3A8A)),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   _currentLocation?.address ?? 'Lokasi saat ini',
-                  style: const TextStyle(fontSize: 12),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color:
+                        Colors.black87, // <-- Mengunci teks agar selalu hitam
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -303,7 +303,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               controller: reasonController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Contoh: Izin sakit demam / Keperluan mendesak keluarga',
+                hintText:
+                    'Contoh: Izin sakit demam / Keperluan mendesak keluarga',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -470,7 +471,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      _currentLocation?.address ?? 'Sedang mendeteksi alamat...',
+                      _currentLocation?.address ??
+                          'Sedang mendeteksi alamat...',
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark
@@ -724,7 +726,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             else
               EmptyStateWidget(
                 title: 'Belum Ada Presensi Hari Ini',
-                message: 'Belum ada data presensi yang tercatat untuk hari ini.',
+                message:
+                    'Belum ada data presensi yang tercatat untuk hari ini.',
                 icon: Icons.schedule_rounded,
                 isDark: isDark,
               ),
