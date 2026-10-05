@@ -106,7 +106,17 @@ class _AbsensiState extends State<Absensi> {
           if (!_isLoggedIn) {
             return Scaffold(
               appBar: AppBar(
-                title: Text(_showRegister ? 'Daftar Akun' : 'Masuk Akun'),
+                // leading: Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child: ClipRRect(
+                //     borderRadius: BorderRadius.circular(8),
+                //     child: Image.asset('assets/images/app_logo.png'),
+                //   ),
+                // ),
+                title: Text(
+                  _showRegister ? 'Pendaftaran' : 'SAPTA',
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
                 backgroundColor: appBarBackgroundColor,
                 foregroundColor: Colors.white,
                 elevation: 0.5,
@@ -169,10 +179,21 @@ class _AbsensiState extends State<Absensi> {
             ),
           ];
 
-          final titles = ['SAPTA', 'Riwayat Absensi', 'Profil Pengguna'];
+          final titles = [
+            'Presensi Pelatihan',
+            'Riwayat Kehadiran',
+            'Profil Peserta',
+          ];
 
           return Scaffold(
             appBar: AppBar(
+              leading: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset('assets/images/app_logo.png'),
+                ),
+              ),
               title: Text(
                 titles[_currentIndex],
                 style: const TextStyle(
@@ -205,18 +226,18 @@ class _AbsensiState extends State<Absensi> {
               },
               destinations: const [
                 NavigationDestination(
-                  icon: Icon(Icons.dashboard_outlined),
-                  selectedIcon: Icon(Icons.dashboard_rounded),
-                  label: 'Dashboard',
+                  icon: Icon(Icons.co_present_outlined),
+                  selectedIcon: Icon(Icons.co_present_rounded),
+                  label: 'Presensi',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.history_outlined),
-                  selectedIcon: Icon(Icons.history_rounded),
+                  icon: Icon(Icons.calendar_month_outlined),
+                  selectedIcon: Icon(Icons.calendar_month_rounded),
                   label: 'Riwayat',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.person_outline_rounded),
-                  selectedIcon: Icon(Icons.person_rounded),
+                  icon: Icon(Icons.badge_outlined),
+                  selectedIcon: Icon(Icons.badge_rounded),
                   label: 'Profil',
                 ),
               ],

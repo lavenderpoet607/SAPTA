@@ -184,6 +184,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   label: 'Masuk',
                   value: _hitung('masuk'),
                   color: const Color(0xFF059669),
+                  icon: Icons.how_to_reg_rounded,
                   isDark: isDark,
                 ),
               ),
@@ -193,6 +194,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   label: 'Izin',
                   value: _hitung('izin'),
                   color: const Color(0xFFD97706),
+                  icon: Icons.pending_actions_rounded,
                   isDark: isDark,
                 ),
               ),
@@ -202,6 +204,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   label: 'Selesai',
                   value: _hitung('selesai'),
                   color: const Color(0xFF2563EB),
+                  icon: Icons.task_alt_rounded,
                   isDark: isDark,
                 ),
               ),
@@ -270,10 +273,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
             )
           else if (_filtered.isEmpty)
             EmptyStateWidget(
-              icon: Icons.inbox_outlined,
-              iconColor: Colors.grey,
-              title: 'Belum ada data',
-              message: 'Riwayat absensi akan muncul setelah Anda melakukan presensi.',
+              imagePath: 'assets/images/empty_attendance.png',
+              title: 'Belum Ada Data Presensi',
+              message: 'Riwayat absensi akan muncul setelah Anda melakukan presensi masuk atau mengajukan izin.',
+              icon: Icons.calendar_today_outlined,
               isDark: isDark,
             )
           else
@@ -291,10 +294,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
         : const Color(0xFF059669);
 
     final ikon = absen.isIzin
-        ? Icons.note_alt_outlined
+        ? Icons.pending_actions_rounded
         : absen.sudahPulang
-        ? Icons.check_circle_outline_rounded
-        : Icons.login_rounded;
+        ? Icons.task_alt_rounded
+        : Icons.how_to_reg_rounded;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

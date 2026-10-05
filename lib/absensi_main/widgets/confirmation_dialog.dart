@@ -1,29 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Widget modal dialog konfirmasi interaktif untuk meminta persetujuan pengguna
-/// sebelum mengeksekusi tindakan sensitif atau penting (Absen Masuk, Absen Pulang,
-/// Hapus Absen, dan Keluar Akun).
-///
-/// Parameter:
-/// - [title]: Judul dialog konfirmasi (wajib).
-/// - [message]: Pesan penjelasan konfirmasi kepada pengguna (wajib).
-/// - [confirmText]: Teks pada tombol konfirmasi persetujuan, default: 'Ya' (opsional).
-/// - [cancelText]: Teks pada tombol batal, default: 'Batal' (opsional).
-/// - [confirmColor]: Warna tombol konfirmasi (opsional).
-/// - [icon]: Ikon header dialog (opsional).
-/// - [contentWidget]: Widget konten tambahan yang disisipkan di antara pesan dan tombol (opsional).
-/// - [isDestructive]: Menandakan apakah tindakan ini merusak/menghapus sehingga diberi styling merah, default: `false` (opsional).
-///
-/// Contoh Penggunaan:
-/// ```dart
-/// final confirmed = await showConfirmationDialog(
-///   context: context,
-///   title: 'Konfirmasi Absen Masuk',
-///   message: 'Apakah Anda yakin ingin melakukan absen masuk saat ini?',
-///   confirmText: 'Ya, Absen Masuk',
-///   confirmColor: const Color(0xFF059669),
-/// );
-/// ```
 class ConfirmationDialog extends StatelessWidget {
   final String title;
   final String message;
@@ -48,12 +24,11 @@ class ConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveConfirmColor = confirmColor ?? (isDestructive ? Colors.red : const Color(0xFF1E3A8A));
+    final effectiveConfirmColor =
+        confirmColor ?? (isDestructive ? Colors.red : const Color(0xFF1E3A8A));
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           if (icon != null) ...[
@@ -80,10 +55,7 @@ class ConfirmationDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              message,
-              style: const TextStyle(fontSize: 13),
-            ),
+            Text(message, style: const TextStyle(fontSize: 13)),
             if (contentWidget != null) ...[
               const SizedBox(height: 12),
               contentWidget!,

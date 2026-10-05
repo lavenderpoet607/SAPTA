@@ -418,7 +418,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               userName: _currentUser?.name ?? 'Peserta PPKD',
               subtitle: DateHelper.formatIndonesianDate(),
               subtitleIcon: Icons.calendar_today_rounded,
-              avatarIcon: Icons.person_rounded,
+              imageAsset: 'assets/images/app_logo.png',
               gradientColors: const [Color(0xFF1E3A8A), Color(0xFF2563EB)],
             ),
             const SizedBox(height: 16),
@@ -584,7 +584,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: const Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.login_rounded, size: 26),
+                        Icon(Icons.how_to_reg_rounded, size: 26),
                         SizedBox(height: 4),
                         Text(
                           'ABSEN MASUK',
@@ -609,7 +609,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: const Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.logout_rounded, size: 26),
+                        Icon(Icons.schedule_send_rounded, size: 26),
                         SizedBox(height: 4),
                         Text(
                           'ABSEN PULANG',
@@ -631,7 +631,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               borderRadius: 12,
               isOutlined: true,
               backgroundColor: const Color(0xFFD97706),
-              icon: Icons.assignment_late_outlined,
+              icon: Icons.pending_actions_rounded,
               text: 'Pengajuan Izin / Sakit Hari Ini',
               onPressed: _isActionProcessing ? null : _handleIzin,
             ),
@@ -648,7 +648,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     label: 'Total Masuk',
                     value: _countMasuk,
                     color: const Color(0xFF059669),
-                    icon: Icons.check_circle_outline_rounded,
+                    icon: Icons.how_to_reg_rounded,
                     isDark: isDark,
                   ),
                 ),
@@ -658,7 +658,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     label: 'Total Izin',
                     value: _countIzin,
                     color: const Color(0xFFD97706),
-                    icon: Icons.time_to_leave_rounded,
+                    icon: Icons.pending_actions_rounded,
                     isDark: isDark,
                   ),
                 ),
@@ -668,7 +668,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     label: 'Selesai Pulang',
                     value: _countSelesai,
                     color: const Color(0xFF2563EB),
-                    icon: Icons.done_all_rounded,
+                    icon: Icons.task_alt_rounded,
                     isDark: isDark,
                   ),
                 ),
@@ -704,8 +704,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         : Colors.green.shade900,
                     child: Icon(
                       _todayAbsen!.status == 'izin'
-                          ? Icons.note_alt_outlined
-                          : Icons.access_time_rounded,
+                          ? Icons.pending_actions_rounded
+                          : Icons.how_to_reg_rounded,
                     ),
                   ),
                   title: Text(
@@ -725,6 +725,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               )
             else
               EmptyStateWidget(
+                imagePath: 'assets/images/empty_attendance.png',
                 title: 'Belum Ada Presensi Hari Ini',
                 message:
                     'Belum ada data presensi yang tercatat untuk hari ini.',

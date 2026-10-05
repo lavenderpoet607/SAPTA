@@ -1,28 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Widget modular untuk menampilkan kondisi kosong (empty state) atau kondisi galat (error state)
-/// dengan visual ikon, teks keterangan, dan tombol aksi perbaikan (seperti muat ulang).
-///
-/// Digunakan pada Riwayat Absensi dan Dashboard saat data kosong atau gagal dimuat dari server.
-///
-/// Parameter:
-/// - [title]: Judul pesan kondisi kosong/galat (wajib).
-/// - [message]: Pesan penjelasan rincian kondisi (wajib).
-/// - [icon]: Ikon representatif kondisi, default: `Icons.inbox_outlined` (opsional).
-/// - [iconColor]: Warna ikon penanda (opsional).
-/// - [onRetry]: Callback fungsi untuk mencoba memuat kembali data jika terjadi galat (opsional).
-/// - [retryText]: Teks label tombol coba lagi, default: 'Coba Lagi' (opsional).
-/// - [isDark]: Penyesuaian tema mode gelap untuk kontainer (opsional).
-///
-/// Contoh Penggunaan:
-/// ```dart
-/// EmptyStateWidget(
-///   title: 'Belum ada data',
-///   message: 'Riwayat absensi akan muncul setelah Anda melakukan presensi.',
-///   icon: Icons.inbox_outlined,
-///   onRetry: _loadHistory,
-/// );
-/// ```
 class EmptyStateWidget extends StatelessWidget {
   final String title;
   final String message;
@@ -31,6 +8,7 @@ class EmptyStateWidget extends StatelessWidget {
   final VoidCallback? onRetry;
   final String retryText;
   final bool? isDark;
+  final String? imagePath;
 
   const EmptyStateWidget({
     super.key,
@@ -41,16 +19,20 @@ class EmptyStateWidget extends StatelessWidget {
     this.onRetry,
     this.retryText = 'Coba Lagi',
     this.isDark,
+    this.imagePath,
   });
 
   @override
   Widget build(BuildContext context) {
-    final effectiveDark = isDark ?? (Theme.of(context).brightness == Brightness.dark);
-    final effectiveIconColor = iconColor ?? (effectiveDark ? Colors.grey.shade400 : Colors.grey.shade500);
+    final effectiveDark =
+        isDark ?? (Theme.of(context).brightness == Brightness.dark);
+    final effectiveIconColor =
+        iconColor ??
+        (effectiveDark ? Colors.grey.shade400 : Colors.grey.shade500);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
       decoration: BoxDecoration(
         color: effectiveDark ? const Color(0xFF1E293B) : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(14),
@@ -58,15 +40,25 @@ class EmptyStateWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 44, color: effectiveIconColor),
-          const SizedBox(height: 12),
+          if (imagePath != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                imagePath!,
+                width: 84,
+                height: 84,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ] else ...[
+            Icon(icon, size: 44, color: effectiveIconColor),
+            const SizedBox(height: 12),
+          ],
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
@@ -74,7 +66,9 @@ class EmptyStateWidget extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
-              color: effectiveDark ? Colors.grey.shade400 : Colors.grey.shade600,
+              color: effectiveDark
+                  ? Colors.grey.shade400
+                  : Colors.grey.shade600,
             ),
           ),
           if (onRetry != null) ...[

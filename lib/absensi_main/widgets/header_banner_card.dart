@@ -8,6 +8,7 @@ class HeaderBannerCard extends StatelessWidget {
   final String? badgeText;
   final String? avatarText;
   final IconData? avatarIcon;
+  final String? imageAsset;
   final List<Color>? gradientColors;
   final VoidCallback? onEdit;
   final VoidCallback? onRefresh;
@@ -22,6 +23,7 @@ class HeaderBannerCard extends StatelessWidget {
     this.badgeText,
     this.avatarText,
     this.avatarIcon,
+    this.imageAsset,
     this.gradientColors,
     this.onEdit,
     this.onRefresh,
@@ -45,20 +47,30 @@ class HeaderBannerCard extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: avatarText != null && avatarText!.isNotEmpty
-          ? Text(
-              avatarText!,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+      child: imageAsset != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: Image.asset(
+                imageAsset!,
+                width: 52,
+                height: 52,
+                fit: BoxFit.cover,
               ),
             )
-          : Icon(
-              avatarIcon ?? Icons.person_rounded,
-              size: 32,
-              color: Colors.white,
-            ),
+          : avatarText != null && avatarText!.isNotEmpty
+              ? Text(
+                  avatarText!,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                )
+              : Icon(
+                  avatarIcon ?? Icons.badge_outlined,
+                  size: 30,
+                  color: Colors.white,
+                ),
     );
 
     Widget textColumn = Column(

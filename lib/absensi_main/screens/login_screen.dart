@@ -127,27 +127,51 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Center(
                   child: Container(
-                    width: 64,
-                    height: 64,
+                    constraints: const BoxConstraints(maxHeight: 140),
+                    margin: const EdgeInsets.only(bottom: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E3A8A).withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.35 : 0.08,
+                          ),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    child: const Icon(
-                      Icons.fact_check_outlined,
-                      size: 32,
-                      color: Color(0xFF1E3A8A),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Image.asset(
+                        'assets/images/attendance_hero.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'SAPTA',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ClipRRect(
+                      //   borderRadius: BorderRadius.circular(8),
+                      //   child: Image.asset(
+                      //     'assets/images/app_logo.png',
+                      //     width: 32,
+                      //     height: 32,
+                      //   ),
+                      // ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'LOGIN',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -159,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
                 if (_errorMessage != null)
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
@@ -193,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   label: 'Email',
                   hintText: 'nama@email.com',
-                  prefixIcon: Icons.email_outlined,
+                  prefixIcon: Icons.alternate_email_rounded,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -210,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   label: 'Password',
                   obscureText: _obscurePassword,
-                  prefixIcon: Icons.lock_outline_rounded,
+                  prefixIcon: Icons.lock_clock_outlined,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
@@ -235,7 +259,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 PrimaryButton(
-                  text: 'MASUK',
+                  text: 'MASUK PRESENSI',
+                  icon: Icons.login_rounded,
                   isLoading: _isLoading,
                   onPressed: _handleLogin,
                   backgroundColor: const Color(0xFF1E3A8A),

@@ -93,42 +93,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person_add_alt_1_rounded,
-                  size: 38,
-                  color: Color(0xFF1E3A8A),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                'PENDAFTARAN PESERTA',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.1,
-                  color: isDark
-                      ? Colors.blue.shade300
-                      : const Color(0xFF1E3A8A),
+              Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 10),
+                    Text(
+                      'DAFTAR',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.8,
+                        color: isDark
+                            ? Colors.blue.shade300
+                            : const Color(0xFF1E3A8A),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
-                'Lengkapi data untuk mendaftar akun SAPTA',
+                'Lengkapi data untuk mendaftar akun presensi pelatihan',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
               if (_errorMessage != null)
                 Container(
                   margin: const EdgeInsets.only(bottom: 16),
@@ -173,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         CustomTextField(
                           controller: _nameController,
                           label: 'Nama Lengkap',
-                          prefixIcon: Icons.person_outline_rounded,
+                          prefixIcon: Icons.badge_outlined,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Nama lengkap wajib diisi';
@@ -185,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         CustomTextField(
                           controller: _emailController,
                           label: 'Alamat Email',
-                          prefixIcon: Icons.email_outlined,
+                          prefixIcon: Icons.alternate_email_rounded,
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -202,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _passwordController,
                           label: 'Password',
                           obscureText: _obscurePassword,
-                          prefixIcon: Icons.lock_outline_rounded,
+                          prefixIcon: Icons.lock_clock_outlined,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
@@ -227,7 +221,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 20),
                         PrimaryButton(
-                          text: 'DAFTAR SEKARANG',
+                          text: 'DAFTAR PRESENSI',
+                          icon: Icons.how_to_reg_rounded,
                           isLoading: _isLoading,
                           onPressed: _handleRegister,
                           backgroundColor: const Color(0xFF1E3A8A),
