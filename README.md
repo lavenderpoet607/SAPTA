@@ -100,7 +100,7 @@ absensi/
 
 1. **Clone repositori**:
    ```bash
-   git clone https://github.com/username/absensi.git
+   git clone https://github.com/username/sapta.git
    cd absensi
    ```
 
