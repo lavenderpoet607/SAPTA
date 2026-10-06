@@ -388,42 +388,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _kartuTema(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+    return Material(
+      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
+        side: BorderSide(
           color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
         ),
       ),
-      child: SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        value: widget.isDarkMode,
-        onChanged: widget.onThemeToggle,
-        secondary: Container(
-          width: 34,
-          height: 34,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: const Color(0xFF4F46E5).withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: widget.isDarkMode,
+          onChanged: widget.onThemeToggle,
+          secondary: Container(
+            width: 34,
+            height: 34,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF4F46E5).withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              widget.isDarkMode
+                  ? Icons.dark_mode_rounded
+                  : Icons.light_mode_rounded,
+              size: 18,
+              color: const Color(0xFF4F46E5),
+            ),
           ),
-          child: Icon(
-            widget.isDarkMode
-                ? Icons.dark_mode_rounded
-                : Icons.light_mode_rounded,
-            size: 18,
-            color: const Color(0xFF4F46E5),
+          title: const Text(
+            'Mode Gelap',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
-        ),
-        title: const Text(
-          'Mode Gelap',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          widget.isDarkMode ? 'Tema gelap aktif' : 'Tema terang aktif',
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
+          subtitle: Text(
+            widget.isDarkMode ? 'Tema gelap aktif' : 'Tema terang aktif',
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
         ),
       ),
     );

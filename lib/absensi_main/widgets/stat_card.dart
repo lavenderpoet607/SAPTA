@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class StatCard extends StatelessWidget {
@@ -17,6 +18,15 @@ class StatCard extends StatelessWidget {
     this.isDark,
     this.onTap,
   });
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('label', label));
+    properties.add(DiagnosticsProperty<dynamic>('value', value));
+    properties.add(ColorProperty('color', color));
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
+  }
 
   @override
   Widget build(BuildContext context) {

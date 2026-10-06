@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'analog_clock.dart';
@@ -35,49 +36,75 @@ class HeaderBannerCard extends StatelessWidget {
   });
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('userName', userName));
+    properties.add(StringProperty('title', title, defaultValue: null));
+    properties.add(StringProperty('subtitle', subtitle, defaultValue: null));
+    properties.add(FlagProperty('showAnalogClock', value: showAnalogClock, ifTrue: 'Jam Analog Tampil', ifFalse: 'Tanpa Jam'));
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onEdit', onEdit));
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onRefresh', onRefresh));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors =
         gradientColors ?? const [Color(0xFF1E3A8A), Color(0xFF2563EB)];
 
-    Widget avatarWidget = Container(
-      width: 58,
-      height: 58,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.22),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.5),
-          width: 2,
-        ),
-      ),
-      child: showAnalogClock
-          ? const AnalogClock(size: 48)
-          : imageAsset != null
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(28),
-              child: Image.asset(
-                imageAsset!,
-                width: 52,
-                height: 52,
-                fit: BoxFit.cover,
+    Widget avatarWidget = showAnalogClock
+        ? Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.35),
+                width: 1.5,
               ),
-            )
-          : avatarText != null && avatarText!.isNotEmpty
-          ? Text(
-              avatarText!,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            )
-          : Icon(
-              avatarIcon ?? Icons.badge_outlined,
-              size: 30,
-              color: Colors.white,
             ),
-    );
+            child: const AnalogClock(
+              size: 42,
+              showNumbers: true,
+              showDigital: true,
+            ),
+          )
+        : Container(
+            width: 58,
+            height: 58,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.22),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.5),
+                width: 2,
+              ),
+            ),
+            child: imageAsset != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: Image.asset(
+                      imageAsset!,
+                      width: 52,
+                      height: 52,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : avatarText != null && avatarText!.isNotEmpty
+                ? Text(
+                    avatarText!,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  )
+                : Icon(
+                    avatarIcon ?? Icons.badge_outlined,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+          );
 
     Widget textColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.start,

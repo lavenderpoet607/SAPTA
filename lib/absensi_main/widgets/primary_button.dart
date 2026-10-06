@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
@@ -27,6 +28,17 @@ class PrimaryButton extends StatelessWidget {
     this.borderRadius = 12.0,
     this.isOutlined = false,
   });
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('text', text, defaultValue: null));
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onPressed', onPressed));
+    properties.add(FlagProperty('isLoading', value: isLoading, ifTrue: 'Sedang Memuat', ifFalse: 'Siap'));
+    properties.add(FlagProperty('isOutlined', value: isOutlined, ifTrue: 'Outlined Style', ifFalse: 'Filled Style'));
+    properties.add(ColorProperty('backgroundColor', backgroundColor, defaultValue: null));
+    properties.add(DoubleProperty('height', height));
+  }
 
   @override
   Widget build(BuildContext context) {

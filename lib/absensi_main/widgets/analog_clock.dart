@@ -12,6 +12,9 @@ class AnalogClock extends StatefulWidget {
   final Color centerPointColor;
   final bool showTicks;
   final bool showSeconds;
+  final bool showNumbers;
+  final bool showDigital;
+  final TextStyle? digitalTextStyle;
 
   const AnalogClock({
     super.key,
@@ -23,6 +26,9 @@ class AnalogClock extends StatefulWidget {
     this.centerPointColor = Colors.white,
     this.showTicks = true,
     this.showSeconds = true,
+    this.showNumbers = true,
+    this.showDigital = true,
+    this.digitalTextStyle,
   });
 
   @override
@@ -54,7 +60,7 @@ class _AnalogClockState extends State<AnalogClock> {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
+    final clock = RepaintBoundary(
       child: SizedBox(
         width: widget.size,
         height: widget.size,
@@ -69,9 +75,45 @@ class _AnalogClockState extends State<AnalogClock> {
             centerPointColor: widget.centerPointColor,
             showTicks: widget.showTicks,
             showSeconds: widget.showSeconds,
+            showNumbers: widget.showNumbers,
           ),
         ),
       ),
+    );
+
+    if (!widget.showDigital) {
+      return clock;
+    }
+
+    final hourStr = _dateTime.hour.toString().padLeft(2, '0');
+    final minuteStr = _dateTime.minute.toString().padLeft(2, '0');
+    final secondStr = _dateTime.second.toString().padLeft(2, '0');
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        clock,
+        const SizedBox(height: 3),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.22),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            '$hourStr:$minuteStr:$secondStr',
+            style: widget.digitalTextStyle ??
+                TextStyle(
+                  fontSize: math.max(9.5, widget.size * 0.20),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -85,6 +127,7 @@ class _AnalogClockPainter extends CustomPainter {
   final Color centerPointColor;
   final bool showTicks;
   final bool showSeconds;
+  final bool showNumbers;
 
   _AnalogClockPainter({
     required this.dateTime,
@@ -95,6 +138,7 @@ class _AnalogClockPainter extends CustomPainter {
     required this.centerPointColor,
     required this.showTicks,
     required this.showSeconds,
+    this.showNumbers = true,
   });
 
   @override
@@ -109,12 +153,43 @@ class _AnalogClockPainter extends CustomPainter {
       canvas.drawCircle(center, radius, dialPaint);
     }
 
+    if (showNumbers) {
+      const numbers = {
+        '12': -math.pi / 2,
+        '3': 0.0,
+        '6': math.pi / 2,
+        '9': math.pi,
+      };
+
+      for (final entry in numbers.entries) {
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: entry.key,
+            style: TextStyle(
+              color: hourHandColor.withValues(alpha: 0.95),
+              fontSize: math.max(6.5, radius * 0.24),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+
+        final numRadius = radius * 0.68;
+        final nx = center.dx + numRadius * math.cos(entry.value) - (textPainter.width / 2);
+        final ny = center.dy + numRadius * math.sin(entry.value) - (textPainter.height / 2);
+        textPainter.paint(canvas, Offset(nx, ny));
+      }
+    }
+
     if (showTicks) {
       final tickPaint = Paint()
         ..color = hourHandColor.withValues(alpha: 0.5)
         ..style = PaintingStyle.fill;
 
       for (int i = 0; i < 12; i++) {
+        // Jika angka 12, 3, 6, 9 ditampilkan, lewati titik pada posisi tersebut
+        if (showNumbers && i % 3 == 0) continue;
+
         final angle = i * (2 * math.pi / 12);
         final dotRadius = (i % 3 == 0) ? 1.5 : 0.9;
         final x = center.dx + (radius * 0.82) * math.cos(angle);
@@ -130,10 +205,10 @@ class _AnalogClockPainter extends CustomPainter {
     final hourAngle =
         (hour + minute / 60.0 + second / 3600.0) * (2 * math.pi / 12) -
         (math.pi / 2);
-    final hourHandLength = radius * 0.50;
+    final hourHandLength = radius * 0.48;
     final hourPaint = Paint()
       ..color = hourHandColor
-      ..strokeWidth = math.max(2.2, radius * 0.09)
+      ..strokeWidth = math.max(2.0, radius * 0.08)
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
@@ -148,10 +223,10 @@ class _AnalogClockPainter extends CustomPainter {
 
     final minuteAngle =
         (minute + second / 60.0) * (2 * math.pi / 60) - (math.pi / 2);
-    final minuteHandLength = radius * 0.72;
+    final minuteHandLength = radius * 0.68;
     final minutePaint = Paint()
       ..color = minuteHandColor.withValues(alpha: 0.95)
-      ..strokeWidth = math.max(1.5, radius * 0.06)
+      ..strokeWidth = math.max(1.4, radius * 0.055)
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
@@ -202,6 +277,8 @@ class _AnalogClockPainter extends CustomPainter {
   bool shouldRepaint(covariant _AnalogClockPainter oldDelegate) {
     return oldDelegate.dateTime.second != dateTime.second ||
         oldDelegate.dateTime.minute != dateTime.minute ||
-        oldDelegate.dateTime.hour != dateTime.hour;
+        oldDelegate.dateTime.hour != dateTime.hour ||
+        oldDelegate.showNumbers != showNumbers ||
+        oldDelegate.showSeconds != showSeconds;
   }
 }
