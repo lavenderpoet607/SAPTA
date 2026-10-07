@@ -3,6 +3,7 @@ import 'package:absensi/absensi_main/helpers/ui_helper.dart';
 import 'package:absensi/absensi_main/services/api_service.dart';
 import 'package:absensi/absensi_main/reusable/custom_text_field.dart';
 import 'package:absensi/absensi_main/widgets/primary_button.dart';
+import 'package:absensi/absensi_main/screens/privacy_policy_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback onRegisterSuccess;
@@ -257,6 +258,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 18),
+              Center(
+                child: InkWell(
+                  onTap: () => PrivacyPolicyScreen.showAsModal(context),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text(
+                      'Kebijakan Privasi & Ketentuan Layanan',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

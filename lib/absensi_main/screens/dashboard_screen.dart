@@ -80,12 +80,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (_) {}
   }
 
-  Future<void> _loadLocationData() async {
+  Future<void> _loadLocationData({bool promptDisclosure = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoadingLocation = true;
     });
-    final loc = await LocationService.getCurrentLocation();
+    final loc = await LocationService.getCurrentLocation(
+      context: promptDisclosure ? context : null,
+      promptDisclosureIfNeeded: promptDisclosure,
+    );
     if (mounted) {
       setState(() {
         _currentLocation = loc;
@@ -176,8 +179,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _handleCheckIn() async {
-    if (_currentLocation == null) {
-      await _loadLocationData();
+    if (_currentLocation == null || _currentLocation!.isFallback) {
+      await _loadLocationData(promptDisclosure: true);
     }
     if (!mounted) return;
 
@@ -243,8 +246,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _handleCheckOut() async {
-    if (_currentLocation == null) {
-      await _loadLocationData();
+    if (_currentLocation == null || _currentLocation!.isFallback) {
+      await _loadLocationData(promptDisclosure: true);
     }
     if (!mounted) return;
 
@@ -441,7 +444,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               currentLocation: _currentLocation,
               isLoadingLocation: _isLoadingLocation,
               isDark: isDark,
-              onRefreshLocation: _loadLocationData,
+              onRefreshLocation: () => _loadLocationData(promptDisclosure: true),
               onOpenFullMap: _openFullMap,
             ),
             const SizedBox(height: 16),
@@ -637,6 +640,39 @@ class _LocationInfoCard extends StatelessWidget {
                 fontFamily: 'monospace',
               ),
             ),
+            if (currentLocation?.isFallback == true)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 2),
+                child: InkWell(
+                  onTap: onRefreshLocation,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.amber.shade400),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded, size: 14, color: Colors.amber),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Izin lokasi belum aktif. Ketuk untuk mengizinkan.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.amber.shade200 : Colors.amber.shade900,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: Colors.amber),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             const SizedBox(height: 12),
             InkWell(
               key: const Key('LocationMapPreviewTap'),

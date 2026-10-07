@@ -10,6 +10,8 @@ import 'package:absensi/absensi_main/widgets/detail_info_row.dart';
 import 'package:absensi/absensi_main/widgets/header_banner_card.dart';
 import 'package:absensi/absensi_main/widgets/primary_button.dart';
 import 'package:absensi/absensi_main/widgets/stat_card.dart';
+import 'package:absensi/absensi_main/screens/privacy_policy_screen.dart';
+import 'package:absensi/absensi_main/widgets/location_disclosure_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -322,9 +324,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 22),
-          _judulSeksi('Pengaturan', isDark),
+          _judulSeksi('Pengaturan & Tampilan', isDark),
           const SizedBox(height: 10),
           _kartuTema(isDark),
+          const SizedBox(height: 22),
+          _judulSeksi('Privasi & Ketentuan', isDark),
+          const SizedBox(height: 10),
+          _kartuPrivasi(isDark),
           const SizedBox(height: 22),
           PrimaryButton(
             text: 'KELUAR AKUN',
@@ -336,7 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 14),
           Center(
             child: Text(
-              'SAPTA',
+              'SAPTA • Versi 1.0.0 (Play Store Ready)',
               style: TextStyle(
                 fontSize: 11,
                 color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,
@@ -427,6 +433,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _kartuPrivasi(bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+        ),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            leading: Container(
+              width: 34,
+              height: 34,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E3A8A).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.privacy_tip_rounded,
+                size: 18,
+                color: Color(0xFF1E3A8A),
+              ),
+            ),
+            title: const Text(
+              'Kebijakan Privasi',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+            subtitle: const Text(
+              'Perlindungan data dan transparansi penggunaan',
+              style: TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+            onTap: () => PrivacyPolicyScreen.showAsModal(context),
+          ),
+          Divider(
+            height: 1,
+            color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+          ),
+          ListTile(
+            leading: Container(
+              width: 34,
+              height: 34,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.location_on_rounded,
+                size: 18,
+                color: Colors.green,
+              ),
+            ),
+            title: const Text(
+              'Pemberitahuan Izin Lokasi',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+            subtitle: const Text(
+              'Informasi perizinan GPS dan validasi presensi',
+              style: TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+            onTap: () => LocationDisclosureDialog.show(context),
+          ),
+        ],
       ),
     );
   }

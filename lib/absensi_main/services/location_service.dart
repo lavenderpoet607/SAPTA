@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:absensi/absensi_main/widgets/location_disclosure_dialog.dart';
 
 class LocationResult {
   final double latitude;
@@ -41,18 +43,38 @@ class LocationService {
     return await Geolocator.isLocationServiceEnabled();
   }
 
-  static Future<LocationPermission> ensurePermission() async {
+  /// Memeriksa izin lokasi dengan dukungan Prominent Disclosure dialog
+  /// sesuai pedoman Google Play Store sebelum memicu dialog sistem Android.
+  static Future<LocationPermission> ensurePermission({
+    BuildContext? context,
+    bool showDisclosureIfNeeded = false,
+  }) async {
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      if (showDisclosureIfNeeded && context != null && context.mounted) {
+        final agreed = await LocationDisclosureDialog.show(context);
+        if (agreed) {
+          permission = await Geolocator.requestPermission();
+        }
+      }
+    } else if (permission == LocationPermission.deniedForever) {
+      if (showDisclosureIfNeeded && context != null && context.mounted) {
+        await LocationDisclosureDialog.show(context, isPermanentlyDenied: true);
+      }
     }
     return permission;
   }
 
-  static Future<LocationResult> getCurrentLocation() async {
+  static Future<LocationResult> getCurrentLocation({
+    BuildContext? context,
+    bool promptDisclosureIfNeeded = false,
+  }) async {
     Position? lastKnown;
     try {
-      final perm = await ensurePermission();
+      final perm = await ensurePermission(
+        context: context,
+        showDisclosureIfNeeded: promptDisclosureIfNeeded,
+      );
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         return fallback('Izin lokasi belum diberikan');
