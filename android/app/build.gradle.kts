@@ -15,7 +15,7 @@ val googleMapsApiKey: String = localProperties.getProperty("GOOGLE_MAPS_API_KEY"
     ?: ""
 
 android {
-    namespace = "com.example.absensi"
+    namespace = "com.sapta.absensi"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.absensi"
+        applicationId = "com.sapta.absensi"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

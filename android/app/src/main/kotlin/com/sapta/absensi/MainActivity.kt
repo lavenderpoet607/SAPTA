@@ -1,4 +1,4 @@
-package com.example.absensi
+package com.sapta.absensi
 
 import io.flutter.embedding.android.FlutterActivity
 

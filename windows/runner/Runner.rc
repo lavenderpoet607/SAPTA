@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "com.sapta" "\0"
             VALUE "FileDescription", "absensi" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "absensi" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.sapta. All rights reserved." "\0"
             VALUE "OriginalFilename", "absensi.exe" "\0"
             VALUE "ProductName", "absensi" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
